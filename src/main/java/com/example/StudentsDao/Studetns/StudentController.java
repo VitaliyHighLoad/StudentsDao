@@ -14,7 +14,7 @@ public class StudentController {
         this.studentService = studentService;
     }
 
-    @GetMapping(path = "list")
+    @GetMapping(path = "item")
     public List<Student> list(){
         return studentService.list();
     }
@@ -33,5 +33,10 @@ public class StudentController {
     @PutMapping(path = "item")
     public void update(@RequestBody Student student){
         studentService.update(student);
+    }
+
+    @PutMapping(path="changeItem/{studentId}")
+    public void updateParam(@PathVariable Long studentId, @RequestParam(required = false) String name, @RequestParam(required = false) String email) {
+        studentService.updateParam(studentId, name, email);
     }
 }

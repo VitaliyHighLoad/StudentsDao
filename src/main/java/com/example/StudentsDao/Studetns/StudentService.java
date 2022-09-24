@@ -4,10 +4,8 @@ import com.example.StudentsDao.response.RestApiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.time.Month;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -38,6 +36,10 @@ public class StudentService {
     }
 
     public void delete(Long studentId) {
+        boolean existingStudent = studentRepository.existsById(studentId);
+        if (!existingStudent) {
+            throw new RestApiException("No student with sush id");
+        }
         studentRepository.deleteById(studentId);
     }
 
@@ -51,15 +53,36 @@ public class StudentService {
                 logger.info("such student is present");
                 Student item = row.get();
                 if (!student.getName().isEmpty()) {
+                    logger.info("in block edit name");
                     item.setName(student.getName());
                 }
                 if (student.getDob() != null) {
+                    logger.info("in block edit dob");
                     item.setDob(student.getDob());
+                }
+                if (student.getEmail() != null) {
+                    logger.info("in block edit email");
+                    item.setEmail("stub@yandex.ru");
                 }
                 studentRepository.save(item);
             } else {
                 logger.info("no such student");
             }
         }
+    }
+
+    public void updateParam(Long studentId, String name, String email) {
+        Student studentChanged = studentRepository.findById(studentId).orElseThrow(() -> new RestApiException("such id = " + studentId + " no exist in DataBase"));
+        logger.info("we in method Put updateParam = " + studentChanged);
+        if (name != null && name.length() >0 && !Objects.equals(studentChanged.getName(), name)) {
+            logger.info("we change name on = " + name);
+            studentChanged.setName(name);
+        }
+        if (email != null && email.length() >0 && !Objects.equals(studentChanged.getEmail(), email)) {
+            logger.info("we change email on = " + email);
+            studentChanged.setEmail(email);
+        }
+        logger.info("We save our student");
+        studentRepository.save(studentChanged);
     }
 }
